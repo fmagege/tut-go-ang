@@ -7,7 +7,13 @@ import {AuthService} from "./auth.service";
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'ui';
+  title = 'Angular UI and Go API Tutorial';
 
   constructor(private auth: AuthService) {}
+
+  ngOnInit() {
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+      this.auth.renewTokens();
+    }
+  }
 }

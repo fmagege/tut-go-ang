@@ -43,8 +43,10 @@ export class AuthService {
   private setSession(authResult: auth0.Auth0DecodedHash) {
     // Set time access token will expire
     this.expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime());
+
     this.accessToken = authResult.accessToken;
     this.idToken = authResult.idToken;
+    localStorage.setItem("isLoggedIn", "true");
   }
 
   public logout(): void {
@@ -52,10 +54,7 @@ export class AuthService {
     this.idToken = null;
     this.expiresAt = null;
     this.router.navigate(['/']);
-    // this.auth0.logout({
-    //   returnTo: "http://localhost:4200/",
-    //   clientID: environment.clientId
-    // });
+    localStorage.removeItem('isLoggedIn');
   }
 
   public isAuthenticated(): boolean {
@@ -67,4 +66,16 @@ export class AuthService {
   public createAuthHeaderValue(): string {
     return 'Bearer ' + this.accessToken;
   }
+
+  public renewTokens(): void {
+    this.auth0.checkSession({}, (err, authResult) => {
+      if (authResult && authResult.accessToken && authResult.idToken) {
+        this.setSession(authResult);
+      } else if (err) {
+        alert('Could not get a new token (${err.error}: ${err.errorDescription}).');
+        this.logout();
+      }
+    });
+  }
+
 }

@@ -55,10 +55,10 @@ func main() {
 	authorized.POST("/todo", handlers.AddTodoHandler)
 	authorized.DELETE("/todo/:id", handlers.DeleteTodoHandler)
 	authorized.PUT("/todo", handlers.CompleteTodoHandler)
-	r.OPTIONS("/todo", func(c *gin.Context) {
-		c.Status(http.StatusOK)
-		return
-	})
+	//r.OPTIONS("/todo", func(c *gin.Context) {
+	//	c.Status(http.StatusOK)
+	//	return
+	//})
 
 	err := r.Run(":5005")
 	if err != nil {
@@ -72,7 +72,7 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "DELETE, GET, OPTIONS, POST, PUT")
 		if c.Request.Method == "OPTIONS" {
-			c.Status(http.StatusOK)
+			c.AbortWithStatus(http.StatusNoContent)
 			return
 		}
 	}
