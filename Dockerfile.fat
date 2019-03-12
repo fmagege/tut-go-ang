@@ -1,0 +1,27 @@
+FROM golang:alpine AS base
+MAINTAINER FH Magege <fmagege@mulax.io>
+LABEL vendor=Mulax\ Crypto\ Exchange \
+      io.mulax.server.is-production="false" \
+      io.mulax.server.version="0.0.1-alpha" \
+      io.mulax.server.release-date="2019-03-05"
+
+RUN apk --no-cache add git
+
+ENV BUILD_PATH /go/src/golang-angular
+RUN mkdir -p $BUILD_PATH
+
+RUN adduser -S -D -H -h $BUILD_PATH builder && chown builder $BUILD_PATH
+USER builder
+WORKDIR $BUILD_PATH
+ADD . $BUILD_PATH
+
+RUN go get github.com/golang/dep/cmd/dep
+RUN dep init && dep ensure -vendor-only
+#RUN go build -o server .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server .
+
+ENV AUTH0_API_IDENTIFIER https://golang-angular-api
+ENV AUTH0_DOMAIN mulax.auth0.com
+
+EXPOSE 5005
+CMD ["/go/src/golang-angular/server"]
